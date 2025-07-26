@@ -12,9 +12,30 @@
         height: 100vh;
         border: 1px solid lightgray;
       }
+      #search-container {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 10;
+        background: rgba(255,255,255,0.9);
+        padding: 8px;
+        border-radius: 6px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      }
+      #search-input {
+        width: 180px;
+        padding: 4px 8px;
+      }
+      #search-btn {
+        padding: 4px 10px;
+      }
     </style>
   </head>
   <body>
+    <div id="search-container">
+      <input id="search-input" type="text" placeholder="Search node id..." />
+      <button id="search-btn">Search</button>
+    </div>
     <div id="mynetwork"></div>
     <script type="text/javascript" defer>
       const nodes = new vis.DataSet(_nodes.map((node) => ({
@@ -72,7 +93,25 @@
         },
       };
       const network = new vis.Network(container, data, options);
-      // network.stabilize(500);
+
+      // Search functionality
+      document.getElementById("search-btn").onclick = function() {
+        const val = document.getElementById("search-input").value.trim();
+        if (!val) return;
+        if (nodes.get(val)) {
+          network.selectNodes([val]);
+          network.focus(val, {
+            scale: 1.5,
+            animation: { duration: 500, easingFunction: "easeInOutQuad" }
+          });
+        } else {
+          alert("Node not found!");
+        }
+      };
+      document.getElementById("search-input").addEventListener("keydown", function(e) {
+        if (e.key === "Enter") document.getElementById("search-btn").click();
+      });
+
       network.on("doubleClick", (event) => {
         if (event.nodes.length > 0) {
           const nodeId = event.nodes[0]; // Get the clicked node ID
@@ -84,4 +123,3 @@
       });
     </script>
   </body>
-</html>
